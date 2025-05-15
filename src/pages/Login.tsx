@@ -14,31 +14,34 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { login } = useAuth();
+  const { login: loginUser } = useAuth(); // Renamed for clarity
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     setErrorMessage(null);
 
     try {
-      await login(pseudonym, password);
+      const fakeEmail = `${pseudonym}@gmail.com`;
+      await loginUser(fakeEmail, password);
+
       navigate('/dashboard');
-    } catch (error: any) {
-      setErrorMessage(error.message || 'An error occurred during login');
+    } catch (error: unknown) {
+      const message = (error as { message?: string })?.message || 'An error occurred during login';
+      setErrorMessage(message);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-safespeak-dark">
+    <div className="min-h-screen flex flex-col bg-safespeak-dark relative">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent to-safespeak-dark-accent/30 pointer-events-none" />
-      
+
       <main className="flex-1 flex items-center justify-center p-4">
-        <motion.div 
+        <motion.div
           className="max-w-md w-full glass-card p-8 rounded-2xl"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -48,19 +51,21 @@ const Login = () => {
           <div className="flex justify-center mb-6">
             <Link to="/" className="flex items-center gap-2">
               <Shield className="h-8 w-8 text-safespeak-blue" />
-              <span className="text-2xl font-bold">Safe<span className="text-safespeak-blue">Speak</span></span>
+              <span className="text-2xl font-bold">
+                Safe<span className="text-safespeak-blue">Speak</span>
+              </span>
             </Link>
           </div>
-          
+
           <h1 className="text-2xl font-bold text-center mb-6">Anonymous Login</h1>
-          
+
           {errorMessage && (
             <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-2 rounded-md mb-4 text-sm flex items-center gap-2">
               <AlertCircle className="h-4 w-4" />
               {errorMessage}
             </div>
           )}
-          
+
           <form onSubmit={handleLogin} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="pseudonym">Pseudonym</Label>
@@ -70,9 +75,10 @@ const Login = () => {
                 value={pseudonym}
                 onChange={(e) => setPseudonym(e.target.value)}
                 className="bg-safespeak-dark-accent border-white/10"
+                disabled={isLoading}
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input
@@ -82,34 +88,40 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="bg-safespeak-dark-accent border-white/10"
+                disabled={isLoading}
               />
             </div>
-            
-            <Button 
-              type="submit" 
-              className="w-full" 
+
+            <Button
+              type="submit"
+              className="w-full bg-safespeak-green hover:bg-safespeak-green/90"
               disabled={isLoading}
             >
               {isLoading ? (
-                <span className="flex items-center gap-2">
-                  <Lock className="h-4 w-4 animate-spin" /> Logging in...
+                <span className="flex items-center gap-2 animate-pulse">
+                  <Lock className="h-4 w-4 animate-spin" />
+                  Logging in...
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
-                  <Lock className="h-4 w-4" /> Login
+                  <Lock className="h-4 w-4" />
+                  Login
                 </span>
               )}
             </Button>
           </form>
-          
+
           <div className="mt-6 text-center">
             <p className="text-white/60 text-sm">
-              Don't have an anonymous profile? <Link to="/register" className="text-safespeak-blue hover:underline">Create one</Link>
+              Don&apos;t have an anonymous profile?{' '}
+              <Link to="/register" className="text-safespeak-blue hover:underline">
+                Create one
+              </Link>
             </p>
           </div>
         </motion.div>
       </main>
-      
+
       <Footer />
     </div>
   );

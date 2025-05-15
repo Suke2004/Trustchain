@@ -1,18 +1,33 @@
-// Import the functions you need from the SDKs you need
+// firebase.js
+
+// Import Firebase SDK functions
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { getFirestore, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, query, where } from "firebase/firestore";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut
+} from "firebase/auth";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  doc,
+  getDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where
+} from "firebase/firestore";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyAU6wmIRJyp_c5vyQlOSGiDGhyhIYfhyBc",
   authDomain: "trust-chain-98b07.firebaseapp.com",
   projectId: "trust-chain-98b07",
-  storageBucket: "trust-chain-98b07.firebasestorage.app",
+  storageBucket: "trust-chain-98b07.appspot.com", // ✅ fixed
   messagingSenderId: "487365413084",
   appId: "1:487365413084:web:a03305d85996411805cc19",
   measurementId: "G-PFT1HXCPH1"
@@ -20,8 +35,31 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+
+// Initialize analytics (optional, only works in browser with HTTPS)
+let analytics;
+if (typeof window !== "undefined" && window.location.protocol === "https:") {
+  analytics = getAnalytics(app);
+}
+
+// Firebase services
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-export { auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, db, collection, addDoc, getDocs, doc, getDoc, updateDoc, deleteDoc, query, where };
+// Export modules you'll use
+export {
+  auth,
+  db,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  collection,
+  addDoc,
+  getDocs,
+  doc,
+  getDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where
+};

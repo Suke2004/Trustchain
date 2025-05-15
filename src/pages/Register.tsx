@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { UserPlus, Shield, Lock } from 'lucide-react';
+import { UserPlus, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,37 +15,39 @@ const Register = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const { register } = useAuth();
+  const { register: registerUser } = useAuth(); // renamed for clarity
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setErrorMessage(null);
-    
+
     if (!pseudonym || !password || !confirmPassword) {
       setErrorMessage("Please fill in all fields");
       return;
     }
-    
+
     if (password !== confirmPassword) {
       setErrorMessage("Passwords do not match");
       return;
     }
-    
+
     if (password.length < 6) {
       setErrorMessage("Password must be at least 6 characters long");
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     try {
-      await register(pseudonym, password);
+      const fakeEmail = `${pseudonym}@gmail.com`;
+      await registerUser(fakeEmail, password);
       navigate('/login');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Registration error:', error);
-      const message = error.message || "Failed to create your profile";
+      const message =
+        (error as { message?: string })?.message || "Failed to create your profile";
       setErrorMessage(message);
     } finally {
       setIsLoading(false);
@@ -53,7 +55,7 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-safespeak-dark">
+    <div className="min-h-screen flex flex-col bg-safespeak-dark relative">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent to-safespeak-dark-accent/30 pointer-events-none" />
       
       <main className="flex-1 flex items-center justify-center p-4">
@@ -63,22 +65,24 @@ const Register = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          {/* App Logo */}
+          {/* Logo */}
           <div className="flex justify-center mb-6">
             <Link to="/" className="flex items-center gap-2">
               <Shield className="h-8 w-8 text-safespeak-blue" />
-              <span className="text-2xl font-bold">Safe<span className="text-safespeak-blue">Speak</span></span>
+              <span className="text-2xl font-bold">
+                Safe<span className="text-safespeak-blue">Speak</span>
+              </span>
             </Link>
           </div>
-          
+
           <h1 className="text-2xl font-bold text-center mb-6">Create Anonymous Profile</h1>
-          
+
           {errorMessage && (
             <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-2 rounded-md mb-4 text-sm">
               {errorMessage}
             </div>
           )}
-          
+
           <form onSubmit={handleRegister} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="pseudonym">Choose a Pseudonym</Label>
@@ -91,7 +95,7 @@ const Register = () => {
                 disabled={isLoading}
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input
@@ -105,7 +109,7 @@ const Register = () => {
               />
               <p className="text-xs text-white/50">Must be at least 6 characters long</p>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirm Password</Label>
               <Input
@@ -118,15 +122,15 @@ const Register = () => {
                 disabled={isLoading}
               />
             </div>
-            
-            <Button 
-              type="submit" 
-              className="w-full bg-safespeak-green hover:bg-safespeak-green/90" 
+
+            <Button
+              type="submit"
+              className="w-full bg-safespeak-green hover:bg-safespeak-green/90"
               disabled={isLoading}
             >
               {isLoading ? (
-                <span className="flex items-center gap-2">
-                  <span className="animate-spin">●</span> Creating Profile...
+                <span className="flex items-center gap-2 animate-pulse">
+                  <span className="animate-spin text-lg">⏳</span> Creating Profile...
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
@@ -135,15 +139,18 @@ const Register = () => {
               )}
             </Button>
           </form>
-          
+
           <div className="mt-6 text-center">
             <p className="text-white/60 text-sm">
-              Already have a profile? <Link to="/login" className="text-safespeak-blue hover:underline">Login</Link>
+              Already have a profile?{" "}
+              <Link to="/login" className="text-safespeak-blue hover:underline">
+                Login
+              </Link>
             </p>
           </div>
         </motion.div>
       </main>
-      
+
       <Footer />
     </div>
   );
