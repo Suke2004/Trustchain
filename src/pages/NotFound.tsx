@@ -4,7 +4,7 @@ import { Shield, Lock, User, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Footer from '@/components/Footer';
 
-const HomePage = () => {
+const NotFound = () => {
   return (
     <div className="min-h-screen flex flex-col bg-trust-chain-dark">
       <div className="absolute inset-0 bg-gradient-to-b from-transparent to-trust-chain-dark-accent/30 pointer-events-none" />
@@ -87,4 +87,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default NotFound;
