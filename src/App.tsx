@@ -69,7 +69,7 @@ const App = () => (
               } />
               
               {/* Catch-all */}
-              <Route path="*" element={<NotFound />} />
+              <Route path="*" element={<HomePage />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
