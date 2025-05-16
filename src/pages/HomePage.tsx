@@ -41,7 +41,7 @@ const HomePage = () => {
               <div className="bg-trust-chain-blue/15 p-4 rounded-full mb-4">
                 <User className="h-10 w-10 text-trust-chain-blue" />
               </div>
-              <h2 className="text-2xl font-bold mb-3">User Access</h2>
+              <h2 className="text-2xl font-bold mb-3">Rukmini Access</h2>
               <p className="text-white/70 mb-6">
                 Create an anonymous profile and report crimes securely with complete privacy.
               </p>
