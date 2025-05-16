@@ -30,7 +30,7 @@ const HomePage = () => {
           </h1>
           
           <p className="text-xl md:text-2xl text-white/80 text-center mb-16">
-            Secure, Anonymous Crime Reporting
+            Built by Rukmini and Team
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
