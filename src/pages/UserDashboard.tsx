@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FilePenLine, CheckCircle, Clock, BarChart2, ShieldAlert } from 'lucide-react';
+import { format } from 'date-fns';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
@@ -20,35 +21,49 @@ const UserDashboard = () => {
   });
 
   useEffect(() => {
-    // In a real app, this would fetch user's reports from a database
-    // For now, we'll check localStorage for any submitted reports
+    // TODO: Replace with backend API fetch when connected to a database
     const storedReports = localStorage.getItem('userReports');
     const parsedReports = storedReports ? JSON.parse(storedReports) : [];
     setReports(parsedReports);
-    
-    // Calculate stats based on actual reports
+
     const reportStats = {
       totalReports: parsedReports.length,
       solvedCases: parsedReports.filter(r => r.status === 'resolved').length,
       underInvestigation: parsedReports.filter(r => r.status === 'under-investigation').length,
       criticalCases: parsedReports.filter(r => r.priority === 'urgent' || r.priority === 'high').length
     };
-    
+
     setStats(reportStats);
   }, [user]);
+
+  const solvedPercent = stats.totalReports > 0
+    ? Math.round((stats.solvedCases / stats.totalReports) * 100)
+    : 0;
+
+  const investigationPercent = stats.totalReports > 0
+    ? Math.round((stats.underInvestigation / stats.totalReports) * 100)
+    : 0;
+
+  const criticalPercent = stats.totalReports > 0
+    ? Math.round((stats.criticalCases / stats.totalReports) * 100)
+    : 0;
 
   return (
     <div className="min-h-screen flex flex-col bg-safespeak-dark">
       <Navbar />
-      
+
       <main className="flex-1 pt-20 pb-12">
         <div className="container mx-auto px-4">
           {/* Welcome Section */}
           <div className="mb-8">
-            <h1 className="text-2xl font-bold mb-2">Welcome, {user?.pseudonym}</h1>
-            <p className="text-white/70">Your anonymous dashboard for crime reporting and tracking.</p>
+            <h1 className="text-2xl font-bold mb-2">
+              Welcome, {user?.pseudonym || 'Guest'}
+            </h1>
+            <p className="text-white/70">
+              Your anonymous dashboard for crime reporting and tracking.
+            </p>
           </div>
-          
+
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
             <StatCard 
@@ -76,7 +91,7 @@ const UserDashboard = () => {
               trend={undefined}
             />
           </div>
-          
+
           {/* Case Resolution Progress */}
           <motion.div 
             className="glass-card rounded-2xl p-6 mb-10"
@@ -87,66 +102,36 @@ const UserDashboard = () => {
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold">Case Resolution Progress</h3>
               {reports.length > 0 && (
-                <Button variant="outline" size="sm" className="text-xs">
+                <Button variant="outline" size="sm" className="text-xs" aria-label="View detailed statistics">
                   <BarChart2 className="h-4 w-4 mr-1" /> View Detailed Stats
                 </Button>
               )}
             </div>
-            
+
             {reports.length > 0 ? (
               <div className="space-y-6">
                 <div>
                   <div className="flex justify-between items-center mb-2">
                     <div className="text-sm font-medium">Cases Solved</div>
-                    <div className="text-sm text-white/70">
-                      {stats.totalReports > 0 
-                        ? Math.round(stats.solvedCases / stats.totalReports * 100)
-                        : 0}%
-                    </div>
+                    <div className="text-sm text-white/70">{solvedPercent}%</div>
                   </div>
-                  <Progress 
-                    value={stats.totalReports > 0 
-                      ? Math.round(stats.solvedCases / stats.totalReports * 100)
-                      : 0
-                    } 
-                    className="h-2 bg-white/10" 
-                  />
+                  <Progress value={solvedPercent} className="h-2 bg-white/10" />
                 </div>
-                
+
                 <div>
                   <div className="flex justify-between items-center mb-2">
                     <div className="text-sm font-medium">Under Investigation</div>
-                    <div className="text-sm text-white/70">
-                      {stats.totalReports > 0 
-                        ? Math.round(stats.underInvestigation / stats.totalReports * 100)
-                        : 0}%
-                    </div>
+                    <div className="text-sm text-white/70">{investigationPercent}%</div>
                   </div>
-                  <Progress 
-                    value={stats.totalReports > 0 
-                      ? Math.round(stats.underInvestigation / stats.totalReports * 100)
-                      : 0
-                    } 
-                    className="h-2 bg-white/10" 
-                  />
+                  <Progress value={investigationPercent} className="h-2 bg-white/10" />
                 </div>
-                
+
                 <div>
                   <div className="flex justify-between items-center mb-2">
                     <div className="text-sm font-medium">Critical Cases</div>
-                    <div className="text-sm text-white/70">
-                      {stats.totalReports > 0 
-                        ? Math.round(stats.criticalCases / stats.totalReports * 100)
-                        : 0}%
-                    </div>
+                    <div className="text-sm text-white/70">{criticalPercent}%</div>
                   </div>
-                  <Progress 
-                    value={stats.totalReports > 0 
-                      ? Math.round(stats.criticalCases / stats.totalReports * 100)
-                      : 0
-                    } 
-                    className="h-2 bg-white/10" 
-                  />
+                  <Progress value={criticalPercent} className="h-2 bg-white/10" />
                 </div>
               </div>
             ) : (
@@ -155,7 +140,7 @@ const UserDashboard = () => {
               </div>
             )}
           </motion.div>
-          
+
           {/* View Submitted Reports Section */}
           <motion.div
             className="glass-card rounded-2xl p-6 mb-10"
@@ -164,7 +149,7 @@ const UserDashboard = () => {
             transition={{ duration: 0.5, delay: 0.3 }}
           >
             <h3 className="text-lg font-semibold mb-4">Your Submitted Reports</h3>
-            
+
             {reports.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -178,11 +163,13 @@ const UserDashboard = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {reports.map((report) => (
-                      <tr key={report.id} className="border-b border-white/5 hover:bg-white/5">
+                    {reports.map((report, index) => (
+                      <tr key={`${report.id}-${index}`} className="border-b border-white/5 hover:bg-white/5">
                         <td className="p-4 font-mono text-sm">{report.id}</td>
-                        <td className="p-4">{report.crimeType}</td>
-                        <td className="p-4 text-sm text-white/70">{report.date}</td>
+                        <td className="p-4 capitalize">{report.crimeType.replace(/-/g, ' ')}</td>
+                        <td className="p-4 text-sm text-white/70">
+                          {format(new Date(report.date), 'PPP')}
+                        </td>
                         <td className="p-4">
                           <span className={`px-2 py-1 text-xs rounded ${
                             report.status === 'resolved' ? 'bg-safespeak-green/20 text-safespeak-green' :
@@ -196,7 +183,7 @@ const UserDashboard = () => {
                         </td>
                         <td className="p-4 text-right">
                           <Link to={`/track/${report.id}`}>
-                            <Button size="sm" variant="outline" className="text-xs">
+                            <Button size="sm" variant="outline" className="text-xs" aria-label={`View report ${report.id}`}>
                               View Details
                             </Button>
                           </Link>
@@ -215,7 +202,7 @@ const UserDashboard = () => {
               </div>
             )}
           </motion.div>
-          
+
           {/* Actions */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <motion.div 
@@ -232,7 +219,7 @@ const UserDashboard = () => {
               <p className="text-white/70 text-sm mb-4">Submit a new anonymous crime report securely.</p>
               <Link to="/report" className="btn-primary w-full">Report Now</Link>
             </motion.div>
-            
+
             <motion.div 
               className="glass-card rounded-2xl p-6 text-center flex flex-col items-center"
               initial={{ opacity: 0, y: 20 }}
@@ -247,7 +234,7 @@ const UserDashboard = () => {
               <p className="text-white/70 text-sm mb-4">Check the status of your previously submitted report.</p>
               <Link to="/track" className="btn-secondary w-full">Track Report</Link>
             </motion.div>
-            
+
             <motion.div 
               className="glass-card rounded-2xl p-6 text-center flex flex-col items-center"
               initial={{ opacity: 0, y: 20 }}
@@ -265,7 +252,7 @@ const UserDashboard = () => {
           </div>
         </div>
       </main>
-      
+
       <Footer />
     </div>
   );
